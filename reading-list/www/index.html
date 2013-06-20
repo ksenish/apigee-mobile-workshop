@@ -7,7 +7,7 @@
         <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
         <script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
         <script src="https://apigee.com/usergrid/sdk/usergrid.0.10.5.js"></script>
-
+        <script src="codova.js"></script>
         <script type="text/javascript">
 
             // Initializing the SDK
@@ -15,25 +15,7 @@
                 orgName:'ksenish', // Your Usergrid organization name (or apigee.com username for App Services)
                 appName:'sandbox' // Your Usergrid app name
             });
-
-            // // My solution 
-            // // Reading data
-            // var books = new Usergrid.Collection({ "client":apigee, "type":"books" });
-            // books.fetch(
-            //     function() { // Success
-            //         while(books.hasNextEntity()) {
-            //             var book = books.getNextEntity();
-            //             var title = book.get("title")
-            //             var author = book.get("author")
-            //             // Output the book on the page
-            //             $('#books-list').append('<li class="ui-li ui-li-static ui-body-c"><h3>'+title+'</h3><p class="ui-li-desc">'+author+'</p></li>');
-            //             // alert(book.get("title")); // Output the title of the book
-            //         }
-            //     }, function() { // Failure
-            //         alert("read failed");
-            //     }
-            // );
-    
+            
             // Proper solution
             // A Collection object that will be used to hold the list of books locally
             var my_books = new Usergrid.Collection( { "client":apigee, "type":"books",
