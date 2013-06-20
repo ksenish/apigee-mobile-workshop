@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Apigee Training App</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+        <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
+        <script src="https://apigee.com/usergrid/sdk/usergrid.0.10.5.js"></script>
+
+        <script type="text/javascript">
+
+            // Initializing the SDK
+            var apigee = new Usergrid.Client({
+                orgName:'ksenish', // Your Usergrid organization name (or apigee.com username for App Services)
+                appName:'sandbox' // Your Usergrid app name
+            });
+
+            // // My solution 
+            // // Reading data
+            // var books = new Usergrid.Collection({ "client":apigee, "type":"books" });
+            // books.fetch(
+            //     function() { // Success
+            //         while(books.hasNextEntity()) {
+            //             var book = books.getNextEntity();
+            //             var title = book.get("title")
+            //             var author = book.get("author")
+            //             // Output the book on the page
+            //             $('#books-list').append('<li class="ui-li ui-li-static ui-body-c"><h3>'+title+'</h3><p class="ui-li-desc">'+author+'</p></li>');
+            //             // alert(book.get("title")); // Output the title of the book
+            //         }
+            //     }, function() { // Failure
+            //         alert("read failed");
+            //     }
+            // );
+    
+            // Proper solution
+            // A Collection object that will be used to hold the list of books locally
+            var my_books = new Usergrid.Collection( { "client":apigee, "type":"books",
+                                                        "qs": { "limit": 20, 
+                                                        "ql": "order by created desc"}  } );
+
+
+            $(document).ready(function () {
+                $('#create-button').bind('click', createBook);
+                
+                loadBooks();
+            });
+
+            function loadBooks () {
+                
+                my_books.fetch( // Actual network call
+
+                    // Success Callback
+                    function () {
+                        $('#books-list').empty();
+                        
+                        while ( my_books.hasNextEntity() ) {
+                            var current_book = my_books.getNextEntity();
+
+                            // Output the book on the page
+                            $('#books-list').append('<li><h3>'+current_book.get('title')+'</h3><p>'+current_book.get('author')+'</p></li>');
+                        }
+                        
+                        // Re-apply jQuery Mobile styles
+                        $('#books-list').listview('refresh');
+                    },
+
+                    // Failure Callback
+                    function () { alert("read failed"); }
+                );
+            }
+
+            function createBook() {
+
+                new_book = { "title":$("#title").val(),
+                            "author":$("#author").val(),
+                            };
+
+                my_books.addEntity(new_book, function (error, response) {
+                    if (error) {
+                        alert('write failed');
+                    } else {
+                        $("#title-field").val(""), $("#author-field").val("");
+                        loadBooks();
+                        history.back();
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body>
+
+        <div data-role="page" data-theme="c" id="page-books-list">
+            <div data-role="header" data-theme="b">
+                <h1>My Books</h1>
+                <a id="btn-compose" data-icon="plus" data-iconpos="right" data-inline="true" data-role="button" class="ui-btn-right" href="#page-new-book" data-rel="dialog" data-transition="pop">Add</a>
+            </div>
+
+            <div data-role="content">
+                <ul id="books-list" data-role="listview" data-inset="false">
+<!--                     <li>
+                        <h3>First Title</h3>
+                        <p>First author</p>
+                    </li>
+                    <li>
+                        <h3>Second Title</h3>
+                        <p>Second author</p>
+                    </li> -->
+                </ul>
+            </div>
+        </div>
+        <!-- Add a New Book -->
+    <div data-role="page" id="page-new-book">
+      <div data-theme="b" data-role="header">
+          <h3>
+              Add a New Book
+          </h3>
+      </div>
+      <div data-role="content">
+          <div data-role="fieldcontain">
+              <label for="textinput1">
+                  Title
+              </label>
+              <br />
+              <input name="" id="title" placeholder="" value="" type="text">
+          </div>
+          <div data-role="fieldcontain">
+              <label for="textinput2">
+                  Author
+              </label>
+              <br />
+              <input name="" id="author" placeholder="" value="" type="text">
+          </div>
+            <a data-role="button" data-inline="true" data-rel="back">
+              Cancel
+            </a>
+            <button id="create-button" data-inline="true">Create</button>
+      </div>
+    </div>
+    </body>
+</html>
